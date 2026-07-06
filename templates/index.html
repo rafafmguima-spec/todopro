@@ -1321,7 +1321,7 @@ function atualizarToggleMudo(){
 async function limparTudo(){
   if(!confirm("Apagar TODAS as tarefas? Isso não pode ser desfeito!")) return
   try {
-    await api("/clear-all")
+    await api("/clear-all", {})
     tasks = []
     alertados.clear()
     render()
@@ -1703,7 +1703,7 @@ document.getElementById("sortInput").addEventListener("change", e => {
 
 async function limparConcluidas(){
   try {
-    await api("/clear-done")
+    await api("/clear-done", {})
     tasks = tasks.filter(t=>!t.concluida)
     render()
     toast("🗑️ Concluídas removidas!")
