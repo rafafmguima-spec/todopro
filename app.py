@@ -142,7 +142,10 @@ def criar_admin():
             db.session.commit()
             print(f"[ADMIN] Conta admin criada: {ADMIN_EMAIL} / {admin_senha}")
 
-criar_admin()
+try:
+    criar_admin()
+except Exception as _startup_err:
+    print(f"[STARTUP] DB não disponível ainda: {_startup_err}")
 
 
 # ══════════════════════════════════════
