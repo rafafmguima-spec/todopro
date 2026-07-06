@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: todo-pro
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@todopro.com
+      - key: ADMIN_PASSWORD
+        sync: false

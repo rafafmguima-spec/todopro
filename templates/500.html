@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>500 — Erro interno</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c14; --surface: #0f1724; --border: #1e3a5f;
+  --text: #e2e8f0; --text2: #94a3b8;
+  --accent: #38bdf8; --accent2: #818cf8; --red: #f87171;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.wrap {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 24px;
+}
+.code {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(80px, 20vw, 140px);
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--red), #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.robot-crash {
+  font-size: 64px;
+  margin: 16px 0;
+  animation: shake 0.4s ease-in-out infinite;
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-6px) rotate(-3deg); }
+  75% { transform: translateX(6px) rotate(3deg); }
+}
+h1 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+p { font-size: 14px; color: var(--text2); margin-bottom: 28px; line-height: 1.6; }
+.btn-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+a.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 12px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; }
+.btn-primary:hover { opacity: 0.85; transform: translateY(-2px); }
+.btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { transform: translateY(-2px); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="wrap">
+  <div class="code">500</div>
+  <div class="robot-crash">💥</div>
+  <h1>Algo deu errado</h1>
+  <p>O servidor encontrou um problema inesperado.<br>Tente novamente em alguns segundos.</p>
+  <div class="btn-group">
+    <a href="/app" class="btn btn-primary">↺ Tentar novamente</a>
+    <a href="javascript:history.back()" class="btn btn-ghost">← Voltar</a>
+  </div>
+</div>
+<script>
+const c = document.getElementById('c'), x = c.getContext('2d');
+let W, H, pts = [];
+function resize(){ W = c.width = innerWidth; H = c.height = innerHeight; }
+function init(){ pts = Array.from({length:50},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.5+.5,a:Math.random()*.3+.1})) }
+function draw(){ x.clearRect(0,0,W,H); pts.forEach(p=>{ p.x=(p.x+p.vx+W)%W; p.y=(p.y+p.vy+H)%H; x.beginPath(); x.arc(p.x,p.y,p.r,0,Math.PI*2); x.fillStyle=`rgba(248,113,113,${p.a})`; x.fill() }); requestAnimationFrame(draw) }
+resize(); init(); draw(); addEventListener('resize',()=>{ resize(); init() });
+</script>
+</body>
+</html>

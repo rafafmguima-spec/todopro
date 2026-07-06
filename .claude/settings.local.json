@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(cd \"c:\\\\Users\\\\rafaf\\\\Nova pasta\\\\todo-flask\"; Start-Process -FilePath \".venv\\\\Scripts\\\\python.exe\" -ArgumentList \"app.py\" -RedirectStandardOutput \"$env:TEMP\\\\flask_out.txt\" -RedirectStandardError \"$env:TEMP\\\\flask_err.txt\" -WindowStyle Hidden; Start-Sleep 5; Get-Content \"$env:TEMP\\\\flask_err.txt\" -ErrorAction SilentlyContinue; Get-Content \"$env:TEMP\\\\flask_out.txt\" -ErrorAction SilentlyContinue)"
+    ]
+  }
+}

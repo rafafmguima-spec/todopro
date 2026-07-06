@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — To-Do Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"] {
+  --bg: #080c14;
+  --surface: #0f1724;
+  --surface2: #161e2e;
+  --surface3: #1e2940;
+  --border: #1e3a5f;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --green: #34d399;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --shadow: rgba(0,0,0,0.5);
+}
+
+:root[data-theme="light"] {
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #f1f5f9;
+  --surface3: #e2e8f0;
+  --border: #cbd5e1;
+  --text: #0f172a;
+  --text2: #64748b;
+  --accent: #0ea5e9;
+  --accent2: #6366f1;
+  --green: #10b981;
+  --red: #ef4444;
+  --yellow: #f59e0b;
+  --shadow: rgba(0,0,0,0.1);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+canvas#bgCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+aside {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 28px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-logo {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.sidebar-logo span { font-family: 'Space Mono', monospace; font-size: 11px; display: block; color: var(--text2); -webkit-text-fill-color: var(--text2); margin-top: 2px; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text2);
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
+.nav-item:hover, .nav-item.active {
+  background: var(--surface2);
+  color: var(--accent);
+  border-color: var(--border);
+}
+
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+.sidebar-spacer { flex: 1; }
+
+.sidebar-user {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.sidebar-user strong { display: block; color: var(--text); font-size: 14px; margin-bottom: 2px; }
+
+/* ── MAIN ── */
+main {
+  padding: 32px 36px;
+  overflow-y: auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.page-title span { color: var(--accent); }
+
+.header-actions { display: flex; gap: 8px; }
+
+/* ── STAT CARDS ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--shadow); }
+
+.stat-card-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text2);
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 8px;
+}
+
+.stat-card-num {
+  font-size: 32px;
+  font-weight: 800;
+  font-family: 'Space Mono', monospace;
+  line-height: 1;
+}
+
+.stat-card-sub { font-size: 12px; color: var(--text2); margin-top: 6px; }
+
+.stat-card.s-usuarios .stat-card-num { color: var(--accent); }
+.stat-card.s-ativos .stat-card-num { color: var(--green); }
+.stat-card.s-tarefas .stat-card-num { color: var(--accent2); }
+.stat-card.s-taxa .stat-card-num { color: var(--green); }
+.stat-card.s-atrasadas .stat-card-num { color: var(--red); }
+.stat-card.s-novos .stat-card-num { color: var(--yellow); }
+
+/* ── TOP USERS ── */
+.section-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title .badge {
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  background: var(--surface3);
+  color: var(--text2);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.top-users {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.top-user-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.top-user-rank {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text2);
+  min-width: 24px;
+}
+
+.top-user-rank.r1 { color: #fbbf24; }
+.top-user-rank.r2 { color: #94a3b8; }
+.top-user-rank.r3 { color: #cd7c32; }
+
+.top-user-info .name { font-size: 13px; font-weight: 700; }
+.top-user-info .tasks { font-size: 11px; color: var(--text2); font-family: 'Space Mono', monospace; }
+
+/* ── USER TABLE ── */
+.table-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.table-search {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 9px 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.table-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.12);
+}
+
+.table-search::placeholder { color: var(--text2); }
+
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead tr {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text2);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+th:hover { color: var(--accent); }
+th .sort-arrow { opacity: 0.4; margin-left: 4px; }
+th.sorted .sort-arrow { opacity: 1; color: var(--accent); }
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface2); }
+
+td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.user-name { font-weight: 700; font-size: 14px; }
+.user-email { font-size: 12px; color: var(--text2); font-family: 'Space Mono', monospace; margin-top: 2px; }
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Space Mono', monospace;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.badge-status.ativo { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+.badge-status.inativo { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+.badge-status::before { content: '●'; font-size: 8px; }
+
+.task-count {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+}
+
+.task-count span { color: var(--text2); font-size: 11px; }
+
+/* ── TABLE ACTIONS ── */
+.actions-cell { display: flex; gap: 4px; }
+
+.btn-action {
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text2);
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.btn-action:hover { transform: scale(1.1); }
+.btn-action.view:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.btn-action.toggle-on:hover { background: var(--green); color: white; border-color: var(--green); }
+.btn-action.toggle-off:hover { background: var(--yellow); color: #000; border-color: var(--yellow); }
+.btn-action.reset:hover { background: var(--accent2); color: white; border-color: var(--accent2); }
+.btn-action.del:hover { background: var(--red); color: white; border-color: var(--red); }
+
+/* ── BUTTONS ── */
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 9px 16px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+}
+
+.btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+.btn-ghost {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover { background: var(--surface3); }
+
+.btn-danger {
+  background: var(--red);
+  color: white;
+}
+
+.btn-danger:hover { opacity: 0.85; transform: translateY(-1px); }
+
+/* ── MODALS ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.2s;
+}
+
+.modal-overlay.open .modal {
+  transform: translateY(0) scale(1);
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title { font-size: 18px; font-weight: 800; }
+.modal-close {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text2);
+  transition: all 0.15s;
+}
+.modal-close:hover { background: var(--red); color: white; border-color: var(--red); }
+
+.modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ── TASK MODAL ITEMS ── */
+.task-modal-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.task-modal-item.done { opacity: 0.6; }
+.task-modal-item .t-desc { flex: 1; font-size: 14px; font-weight: 600; }
+.task-modal-item.done .t-desc { text-decoration: line-through; color: var(--text2); }
+.task-modal-item .t-meta { font-size: 11px; color: var(--text2); font-family: 'Space Mono', monospace; margin-top: 3px; }
+
+.t-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.t-dot.alta { background: var(--red); }
+.t-dot.media { background: var(--yellow); }
+.t-dot.baixa { background: var(--green); }
+
+/* ── SENHA RESULT ── */
+.senha-result {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: center;
+  margin: 12px 0;
+}
+
+.senha-result .senha-label {
+  font-size: 12px;
+  color: var(--text2);
+  font-family: 'Space Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.senha-result .senha-val {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'Space Mono', monospace;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+
+.senha-result .senha-warn {
+  font-size: 12px;
+  color: var(--yellow);
+  margin-top: 8px;
+}
+
+/* ── CONFIRM MODAL ── */
+.confirm-icon { font-size: 40px; text-align: center; margin-bottom: 10px; }
+.confirm-msg { text-align: center; color: var(--text2); font-size: 14px; line-height: 1.6; }
+.confirm-msg strong { color: var(--text); }
+
+/* ── EMPTY ── */
+.empty-msg {
+  text-align: center;
+  color: var(--text2);
+  padding: 32px;
+  font-size: 14px;
+}
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 32px var(--shadow);
+  z-index: 9999;
+  transition: transform 0.3s;
+  white-space: nowrap;
+}
+
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.ok { border-color: var(--green); color: var(--green); }
+#toast.err { border-color: var(--red); color: var(--red); }
+#toast.warn { border-color: var(--yellow); color: var(--yellow); }
+
+/* ── LOADING ── */
+.spin {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-row td {
+  text-align: center;
+  padding: 40px;
+  color: var(--text2);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  aside { display: none; }
+  main { padding: 20px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 580px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .stat-card-num { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="sidebar-logo">
+      To-Do Pro
+      <span>⚙ Painel Admin</span>
+    </div>
+
+    <a href="javascript:void(0)" class="nav-item active" onclick="showSection('dashboard',this)">
+      <span class="icon">📊</span> Dashboard
+    </a>
+    <a href="javascript:void(0)" class="nav-item" onclick="showSection('usuarios',this)">
+      <span class="icon">👥</span> Usuários
+    </a>
+
+    <div class="sidebar-spacer"></div>
+
+    <a href="/app" class="nav-item">
+      <span class="icon">✅</span> Minhas Tarefas
+    </a>
+    <a href="/logout" class="nav-item">
+      <span class="icon">🚪</span> Sair
+    </a>
+
+    <div class="sidebar-user">
+      <strong>{{ usuario.nome }}</strong>
+      {{ usuario.email }}
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <!-- ── DASHBOARD ── -->
+    <section id="section-dashboard">
+      <div class="page-header">
+        <div class="page-title">Dashboard <span>Admin</span></div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" onclick="toggleTheme()" title="Alternar tema">🌙</button>
+          <button class="btn btn-primary" onclick="carregarStats()">↺ Atualizar</button>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card s-usuarios">
+          <div class="stat-card-label">Total Usuários</div>
+          <div class="stat-card-num" id="s-total">—</div>
+          <div class="stat-card-sub">excluindo admins</div>
+        </div>
+        <div class="stat-card s-ativos">
+          <div class="stat-card-label">Usuários Ativos</div>
+          <div class="stat-card-num" id="s-ativos">—</div>
+          <div class="stat-card-sub" id="s-ativos-pct">—</div>
+        </div>
+        <div class="stat-card s-novos">
+          <div class="stat-card-label">Novos (7 dias)</div>
+          <div class="stat-card-num" id="s-novos">—</div>
+          <div class="stat-card-sub">últimos 7 dias</div>
+        </div>
+        <div class="stat-card s-tarefas">
+          <div class="stat-card-label">Total Tarefas</div>
+          <div class="stat-card-num" id="s-tarefas">—</div>
+          <div class="stat-card-sub">todas as contas</div>
+        </div>
+        <div class="stat-card s-taxa">
+          <div class="stat-card-label">Taxa Conclusão</div>
+          <div class="stat-card-num" id="s-taxa">—</div>
+          <div class="stat-card-sub" id="s-taxa-sub">—</div>
+        </div>
+        <div class="stat-card s-atrasadas">
+          <div class="stat-card-label">Atrasadas</div>
+          <div class="stat-card-num" id="s-atrasadas">—</div>
+          <div class="stat-card-sub">com prazo vencido</div>
+        </div>
+      </div>
+
+      <div class="section-title">
+        🏆 Top Usuários <span class="badge">por tarefas</span>
+      </div>
+      <div class="top-users" id="topUsuarios">
+        <div class="stat-card-sub" style="padding:12px 0; color:var(--text2)">Carregando...</div>
+      </div>
+    </section>
+
+    <!-- ── USUÁRIOS ── -->
+    <section id="section-usuarios" style="display:none">
+      <div class="page-header">
+        <div class="page-title">Usuários <span>Cadastrados</span></div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" onclick="toggleTheme()">🌙</button>
+          <button class="btn btn-primary" onclick="carregarUsuarios()">↺ Atualizar</button>
+        </div>
+      </div>
+
+      <div class="table-toolbar">
+        <input type="text" class="table-search" id="tableSearch" placeholder="🔍  Buscar por nome ou e-mail..." oninput="filtrarTabela()">
+      </div>
+
+      <div class="table-wrap">
+        <table id="userTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable(this,'nome')">Usuário <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable(this,'criado_em')">Cadastro <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable(this,'total_tarefas')">Tarefas <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable(this,'ativo')">Status <span class="sort-arrow">↕</span></th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr class="loading-row">
+              <td colspan="5"><span class="spin"></span> Carregando...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ── MODAL: VER TAREFAS ── -->
+<div class="modal-overlay" id="modalTarefas">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTarefasTitle">Tarefas do usuário</div>
+        <div style="font-size:12px; color:var(--text2); margin-top:2px" id="modalTarefasEmail"></div>
+      </div>
+      <button class="modal-close" onclick="fecharModal('modalTarefas')">✕</button>
+    </div>
+    <div class="modal-body" id="modalTarefasBody">
+      <div class="empty-msg">Carregando...</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModal('modalTarefas')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: RESET SENHA ── -->
+<div class="modal-overlay" id="modalSenha">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">🔑 Senha Resetada</div>
+      <button class="modal-close" onclick="fecharModal('modalSenha')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px; color:var(--text2); margin-bottom:8px">A nova senha temporária para <strong id="senhaUserNome" style="color:var(--text)"></strong> é:</p>
+      <div class="senha-result">
+        <div class="senha-label">Nova Senha</div>
+        <div class="senha-val" id="senhaNova"></div>
+        <div class="senha-warn">⚠ Copie e envie ao usuário. Esta senha não será exibida novamente.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="copiarSenha()">📋 Copiar</button>
+      <button class="btn btn-primary" onclick="fecharModal('modalSenha')">OK, entendi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: CONFIRMAR DELETE ── -->
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">⚠ Confirmar exclusão</div>
+      <button class="modal-close" onclick="fecharModal('modalConfirm')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:24px">
+      <div class="confirm-icon">🗑️</div>
+      <div class="confirm-msg">
+        Tem certeza que deseja excluir <strong id="confirmNome"></strong>?<br>
+        <span style="color:var(--red)">Todas as tarefas serão apagadas. Esta ação é irreversível.</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModal('modalConfirm')">Cancelar</button>
+      <button class="btn btn-danger" id="confirmBtn">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ── STATE ──
+let usuarios = [];
+let sortKey = 'nome';
+let sortAsc = true;
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  carregarStats();
+  carregarUsuarios();
+  initBg();
+});
+
+// ── SECTIONS ──
+function showSection(name, el) {
+  document.querySelectorAll('section[id^="section-"]').forEach(s => s.style.display = 'none');
+  document.getElementById('section-' + name).style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+// ── THEME ──
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+
+// ── TOAST ──
+let toastTimer;
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3000);
+}
+
+// ── MODAL ──
+function abrirModal(id) { document.getElementById(id).classList.add('open'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// ── STATS ──
+async function carregarStats() {
+  try {
+    const r = await fetch('/admin/stats');
+    const d = await r.json();
+
+    document.getElementById('s-total').textContent = d.total_usuarios;
+    document.getElementById('s-ativos').textContent = d.usuarios_ativos;
+    document.getElementById('s-ativos-pct').textContent =
+      d.total_usuarios ? `${Math.round(d.usuarios_ativos / d.total_usuarios * 100)}% do total` : '—';
+    document.getElementById('s-novos').textContent = d.novos_7dias;
+    document.getElementById('s-tarefas').textContent = d.total_tarefas;
+    document.getElementById('s-taxa').textContent = d.taxa_conclusao + '%';
+    document.getElementById('s-taxa-sub').textContent =
+      `${d.tarefas_feitas} de ${d.total_tarefas} concluídas`;
+    document.getElementById('s-atrasadas').textContent = d.atrasadas;
+
+    // Top usuários
+    const top = document.getElementById('topUsuarios');
+    if (!d.top_usuarios || !d.top_usuarios.length) {
+      top.innerHTML = '<div class="empty-msg">Nenhum usuário ainda</div>';
+      return;
+    }
+    const ranks = ['r1', 'r2', 'r3', '', ''];
+    top.innerHTML = d.top_usuarios.map((u, i) => `
+      <div class="top-user-card">
+        <div class="top-user-rank ${ranks[i] || ''}">${i + 1}°</div>
+        <div class="top-user-info">
+          <div class="name">${esc(u.nome)}</div>
+          <div class="tasks">${u.total} tarefa${u.total !== 1 ? 's' : ''}</div>
+        </div>
+      </div>
+    `).join('');
+  } catch {
+    toast('Erro ao carregar stats', 'err');
+  }
+}
+
+// ── USUARIOS ──
+async function carregarUsuarios() {
+  const tbody = document.getElementById('userTableBody');
+  tbody.innerHTML = '<tr class="loading-row"><td colspan="5"><span class="spin"></span> Carregando...</td></tr>';
+  try {
+    const r = await fetch('/admin/usuarios');
+    usuarios = await r.json();
+    renderTabela();
+  } catch {
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="5" style="color:var(--red)">Erro ao carregar usuários</td></tr>';
+  }
+}
+
+function renderTabela() {
+  const q = (document.getElementById('tableSearch').value || '').toLowerCase();
+  let lista = usuarios.filter(u =>
+    u.nome.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+  );
+
+  lista = lista.slice().sort((a, b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+    if (typeof va === 'boolean') { va = va ? 1 : 0; vb = vb ? 1 : 0; }
+    if (va == null) va = ''; if (vb == null) vb = '';
+    return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+  });
+
+  const tbody = document.getElementById('userTableBody');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="5">Nenhum usuário encontrado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(u => {
+    const data = u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt-BR') : '—';
+    const pct = u.total_tarefas ? Math.round(u.tarefas_concluidas / u.total_tarefas * 100) : 0;
+    return `
+    <tr>
+      <td>
+        <div class="user-name">${esc(u.nome)}</div>
+        <div class="user-email">${esc(u.email)}</div>
+      </td>
+      <td style="font-size:13px; font-family:'Space Mono',monospace; color:var(--text2)">${data}</td>
+      <td>
+        <div class="task-count">
+          ${u.total_tarefas} <span>total</span><br>
+          <span style="color:var(--green)">${u.tarefas_concluidas}</span> <span>feitas (${pct}%)</span>
+        </div>
+      </td>
+      <td>
+        <span class="badge-status ${u.ativo ? 'ativo' : 'inativo'}">
+          ${u.ativo ? 'Ativo' : 'Inativo'}
+        </span>
+      </td>
+      <td>
+        <div class="actions-cell">
+          <button class="btn-action view" title="Ver tarefas" onclick="verTarefas(${u.id}, '${esc(u.nome)}', '${esc(u.email)}')">👁</button>
+          <button class="btn-action ${u.ativo ? 'toggle-on' : 'toggle-off'}" title="${u.ativo ? 'Desativar' : 'Ativar'}" onclick="toggleAtivo(${u.id}, this)">
+            ${u.ativo ? '🔓' : '🔒'}
+          </button>
+          <button class="btn-action reset" title="Resetar senha" onclick="resetSenha(${u.id}, '${esc(u.nome)}')">🔑</button>
+          <button class="btn-action del" title="Excluir usuário" onclick="confirmarDelete(${u.id}, '${esc(u.nome)}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrarTabela() { renderTabela(); }
+
+function sortTable(th, key) {
+  if (sortKey === key) { sortAsc = !sortAsc; }
+  else { sortKey = key; sortAsc = true; }
+  document.querySelectorAll('th').forEach(t => { t.classList.remove('sorted'); t.querySelector('.sort-arrow').textContent = '↕'; });
+  th.classList.add('sorted');
+  th.querySelector('.sort-arrow').textContent = sortAsc ? '↑' : '↓';
+  renderTabela();
+}
+
+// ── VER TAREFAS ──
+async function verTarefas(uid, nome, email) {
+  document.getElementById('modalTarefasTitle').textContent = '📋 ' + nome;
+  document.getElementById('modalTarefasEmail').textContent = email;
+  document.getElementById('modalTarefasBody').innerHTML = '<div class="empty-msg"><span class="spin"></span> Carregando...</div>';
+  abrirModal('modalTarefas');
+
+  try {
+    const r = await fetch(`/admin/usuarios/${uid}/tarefas`);
+    const d = await r.json();
+    const tarefas = d.tarefas;
+
+    if (!tarefas || !tarefas.length) {
+      document.getElementById('modalTarefasBody').innerHTML = '<div class="empty-msg">Este usuário não tem tarefas</div>';
+      return;
+    }
+
+    const hoje = new Date().toISOString().slice(0, 10);
+    document.getElementById('modalTarefasBody').innerHTML = tarefas.map(t => {
+      const atrasada = t.prazo && t.prazo < hoje && !t.concluida;
+      const prazoStr = t.prazo ? new Date(t.prazo + 'T00:00:00').toLocaleDateString('pt-BR') : '';
+      const meta = [
+        t.categoria ? `#${t.categoria}` : '',
+        prazoStr ? `📅 ${prazoStr}` : '',
+        atrasada ? '⚠ Atrasada' : '',
+        t.concluida ? '✅ Concluída' : '⏳ Pendente',
+      ].filter(Boolean).join('  ·  ');
+
+      return `
+      <div class="task-modal-item ${t.concluida ? 'done' : ''}">
+        <div class="t-dot ${t.prioridade}"></div>
+        <div>
+          <div class="t-desc">${esc(t.descricao)}</div>
+          <div class="t-meta">${meta}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch {
+    document.getElementById('modalTarefasBody').innerHTML = '<div class="empty-msg" style="color:var(--red)">Erro ao carregar tarefas</div>';
+  }
+}
+
+// ── TOGGLE ATIVO ──
+async function toggleAtivo(uid, btn) {
+  btn.disabled = true;
+  try {
+    const r = await fetch(`/admin/usuarios/${uid}/toggle-ativo`, { method: 'POST' });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+
+    // Atualiza localmente sem reload completo
+    const u = usuarios.find(u => u.id === uid);
+    if (u) u.ativo = d.ativo;
+    renderTabela();
+    toast(d.ativo ? '✅ Usuário ativado' : '🔒 Usuário desativado', d.ativo ? 'ok' : 'warn');
+    carregarStats();
+  } catch (e) {
+    toast('Erro: ' + (e.message || 'tente novamente'), 'err');
+    btn.disabled = false;
+  }
+}
+
+// ── RESET SENHA ──
+async function resetSenha(uid, nome) {
+  if (!confirm(`Resetar a senha de ${nome}?`)) return;
+  try {
+    const r = await fetch(`/admin/usuarios/${uid}/reset-senha`, { method: 'POST' });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+
+    document.getElementById('senhaUserNome').textContent = nome;
+    document.getElementById('senhaNova').textContent = d.nova_senha;
+    abrirModal('modalSenha');
+  } catch (e) {
+    toast('Erro: ' + (e.message || 'tente novamente'), 'err');
+  }
+}
+
+function copiarSenha() {
+  const senha = document.getElementById('senhaNova').textContent;
+  navigator.clipboard.writeText(senha).then(() => toast('Senha copiada!', 'ok'));
+}
+
+// ── DELETE ──
+let pendingDeleteId = null;
+
+function confirmarDelete(uid, nome) {
+  pendingDeleteId = uid;
+  document.getElementById('confirmNome').textContent = nome;
+  abrirModal('modalConfirm');
+}
+
+document.getElementById('confirmBtn').addEventListener('click', async () => {
+  if (!pendingDeleteId) return;
+  const uid = pendingDeleteId;
+  pendingDeleteId = null;
+  fecharModal('modalConfirm');
+
+  try {
+    const r = await fetch(`/admin/usuarios/${uid}/deletar`, { method: 'POST' });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+
+    usuarios = usuarios.filter(u => u.id !== uid);
+    renderTabela();
+    toast('🗑 Usuário excluído', 'warn');
+    carregarStats();
+  } catch (e) {
+    toast('Erro: ' + (e.message || 'tente novamente'), 'err');
+  }
+});
+
+// ── UTIL ──
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── BACKGROUND ──
+function initBg() {
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function spawnParticle() {
+    particles.push({
+      x: Math.random() * W, y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+      size: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.4 + 0.1,
+      color: Math.random() > 0.5 ? '#38bdf8' : '#818cf8',
+    });
+  }
+
+  for (let i = 0; i < 60; i++) spawnParticle();
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + Math.floor(p.alpha * 255).toString(16).padStart(2, '0');
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  draw();
+}
+</script>
+</body>
+</html>

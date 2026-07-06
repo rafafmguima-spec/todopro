@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do Pro — Entrar</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"] {
+  --bg: #080c14;
+  --surface: #0f1724;
+  --surface2: #161e2e;
+  --surface3: #1e2940;
+  --border: #1e3a5f;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --green: #34d399;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --shadow: rgba(0,0,0,0.5);
+}
+
+:root[data-theme="light"] {
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #f1f5f9;
+  --surface3: #e2e8f0;
+  --border: #cbd5e1;
+  --text: #0f172a;
+  --text2: #64748b;
+  --accent: #0ea5e9;
+  --accent2: #6366f1;
+  --green: #10b981;
+  --red: #ef4444;
+  --yellow: #f59e0b;
+  --shadow: rgba(0,0,0,0.1);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(56,189,248,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(129,140,248,0.07) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+canvas#bgCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.login-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+}
+
+/* ── LOGO ── */
+.logo-area {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo-robot {
+  margin: 0 auto 16px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,100%{ transform: translateY(0); }
+  50%{ transform: translateY(-8px); }
+}
+
+.logo-text {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-sub {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 4px;
+  font-family: 'Space Mono', monospace;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid rgba(56,189,248,0.18);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 16px 64px var(--shadow), 0 0 0 1px rgba(56,189,248,0.05) inset;
+  position: relative;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(56,189,248,0.04), transparent 60%);
+  pointer-events: none;
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  background: var(--surface2);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+  gap: 4px;
+}
+
+.tab {
+  flex: 1;
+  padding: 9px;
+  text-align: center;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text2);
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  font-family: 'Syne', sans-serif;
+}
+
+.tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+/* ── FORM ── */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  display: block;
+  font-family: 'Space Mono', monospace;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 11px 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.15);
+}
+
+input::placeholder { color: var(--text2); }
+
+.btn-submit {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'Syne', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(56,189,248,0.25);
+}
+
+.btn-submit:hover { opacity: 0.92; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,0.45); }
+.btn-submit:active { transform: translateY(0); }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ── ERROR / SUCCESS ── */
+.msg {
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: none;
+}
+
+.msg.erro { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.35); color: var(--red); display: block; }
+.msg.ok   { background: rgba(52,211,153,0.12);  border: 1px solid rgba(52,211,153,0.35);  color: var(--green); display: block; }
+
+/* ── FOOTER LINK ── */
+.card-footer {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.card-footer a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.card-footer a:hover { text-decoration: underline; }
+
+/* ── THEME BTN ── */
+.theme-btn {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 10;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.theme-btn:hover { background: var(--surface2); }
+
+/* ── SPIN ── */
+.spin {
+  display: inline-block;
+  width: 15px; height: 15px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── PASSWORD STRENGTH ── */
+.strength-bar {
+  height: 3px;
+  border-radius: 3px;
+  margin-top: 6px;
+  background: var(--surface3);
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.strength-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s, background 0.3s;
+  width: 0%;
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<button class="theme-btn" onclick="toggleTheme()" title="Alternar tema">🌙</button>
+
+<div class="login-wrap">
+  <!-- Logo -->
+  <div class="logo-area">
+    <svg class="logo-robot" width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Antena -->
+      <line x1="36" y1="8" x2="36" y2="18" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="36" cy="6" r="3.5" fill="#818cf8"/>
+      <!-- Cabeça -->
+      <rect x="14" y="18" width="44" height="30" rx="10" fill="#0f1724" stroke="#38bdf8" stroke-width="1.5"/>
+      <!-- Olho E -->
+      <circle cx="26" cy="31" r="5" fill="#161e2e" stroke="#38bdf8" stroke-width="1.2"/>
+      <circle cx="26" cy="31" r="2.5" fill="#38bdf8"/>
+      <!-- Olho D -->
+      <circle cx="46" cy="31" r="5" fill="#161e2e" stroke="#38bdf8" stroke-width="1.2"/>
+      <circle cx="46" cy="31" r="2.5" fill="#818cf8"/>
+      <!-- Boca -->
+      <path d="M28 40 Q36 46 44 40" stroke="#34d399" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <!-- Pescoço -->
+      <rect x="32" y="48" width="8" height="5" rx="2" fill="#0f1724" stroke="#38bdf8" stroke-width="1.2"/>
+      <!-- Corpo -->
+      <rect x="18" y="53" width="36" height="16" rx="8" fill="#0f1724" stroke="#38bdf8" stroke-width="1.5"/>
+      <!-- Luz peitoral -->
+      <circle cx="36" cy="61" r="3" fill="#fbbf24" opacity="0.8">
+        <animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+    <div class="logo-text">To-Do Pro</div>
+    <div class="logo-sub">seu assistente de produtividade</div>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+
+    <!-- Mensagem global -->
+    <div class="msg" id="msg"></div>
+
+    <!-- ── TELA: LOGIN ── -->
+    <div id="telaLogin">
+      <div class="tabs">
+        <button class="tab active" id="tabLogin" onclick="trocarAba('login')">Entrar</button>
+        <button class="tab" id="tabCadastro" onclick="trocarAba('cadastro')">Criar conta</button>
+      </div>
+
+      <div id="formLogin">
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input type="password" id="loginSenha" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn-submit" id="btnLogin" onclick="fazerLogin()">
+          Entrar <span style="font-size:18px">→</span>
+        </button>
+        <div style="text-align:center;margin-top:14px;">
+          <a onclick="trocarTela('esqueci')" style="font-size:13px;color:var(--text2);cursor:pointer;">Esqueci minha senha</a>
+        </div>
+      </div>
+
+      <div id="formCadastro" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" id="cadNome" placeholder="Como quer ser chamado?" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="cadEmail" placeholder="seu@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input type="password" id="cadSenha" placeholder="Mín. 6 caracteres" autocomplete="new-password" oninput="avaliarSenha(this.value)">
+          <div class="strength-bar"><div class="strength-bar-fill" id="strengthFill"></div></div>
+        </div>
+        <button class="btn-submit" id="btnCadastro" onclick="fazerCadastro()">
+          Criar conta 🚀
+        </button>
+      </div>
+
+      <div class="card-footer" id="footerLink">
+        Não tem conta? <a onclick="trocarAba('cadastro')">Criar agora</a>
+      </div>
+    </div>
+
+    <!-- ── TELA: VERIFIQUE SEU E-MAIL ── -->
+    <div id="telaVerificacao" style="display:none;text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">📬</div>
+      <div style="font-size:17px;font-weight:800;margin-bottom:8px;">Verifique seu e-mail</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">
+        Enviamos um link de confirmação para <strong id="emailVerifDisplay"></strong>.<br>
+        Clique no link para ativar sua conta.
+      </div>
+      <button class="btn-submit" onclick="reenviarVerificacao()" id="btnReenviar">
+        Reenviar e-mail
+      </button>
+      <div style="margin-top:14px;">
+        <a onclick="trocarTela('login')" style="font-size:13px;color:var(--text2);cursor:pointer;">Voltar ao login</a>
+      </div>
+    </div>
+
+    <!-- ── TELA: ESQUECI MINHA SENHA ── -->
+    <div id="telaEsqueci" style="display:none">
+      <div style="font-size:15px;font-weight:800;margin-bottom:4px;">Esqueci minha senha</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Informe seu e-mail e enviaremos um link para criar uma nova senha.</div>
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input type="email" id="esqueciEmail" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <button class="btn-submit" id="btnEsqueci" onclick="fazerEsqueci()">
+        Enviar link de redefinição
+      </button>
+      <div style="margin-top:14px;">
+        <a onclick="trocarTela('login')" style="font-size:13px;color:var(--text2);cursor:pointer;">Voltar ao login</a>
+      </div>
+    </div>
+
+    <!-- ── TELA: REDEFINIR SENHA ── -->
+    <div id="telaReset" style="display:none">
+      <div style="font-size:15px;font-weight:800;margin-bottom:4px;">Nova senha</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Escolha uma senha com pelo menos 6 caracteres.</div>
+      <div class="form-group">
+        <label class="form-label">Nova senha</label>
+        <input type="password" id="novaSenhaInput" placeholder="Mín. 6 caracteres" autocomplete="new-password">
+      </div>
+      <button class="btn-submit" id="btnReset" onclick="fazerReset()">
+        Salvar nova senha
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── ESTADO ──
+let emailPendente = ''
+const RESET_TOKEN = '{{ reset_token or "" }}'
+
+// ── TELAS ──
+const TELAS = ['telaLogin', 'telaVerificacao', 'telaEsqueci', 'telaReset']
+
+function trocarTela(nome) {
+  TELAS.forEach(id => document.getElementById(id).style.display = 'none')
+  document.getElementById('tela' + nome[0].toUpperCase() + nome.slice(1)).style.display = 'block'
+  limparMsg()
+}
+
+// ── ABA (dentro da telaLogin) ──
+function trocarAba(aba) {
+  const isLogin = aba === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabCadastro').classList.toggle('active', !isLogin);
+  document.getElementById('formLogin').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('formCadastro').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('footerLink').innerHTML = isLogin
+    ? 'Não tem conta? <a onclick="trocarAba(\'cadastro\')">Criar agora</a>'
+    : 'Já tem conta? <a onclick="trocarAba(\'login\')">Entrar</a>';
+  limparMsg();
+}
+
+// ── MENSAGEM ──
+function mostrarMsg(texto, tipo) {
+  const el = document.getElementById('msg');
+  el.textContent = texto;
+  el.className = 'msg ' + tipo;
+}
+function limparMsg() {
+  const el = document.getElementById('msg');
+  el.className = 'msg';
+  el.textContent = '';
+}
+
+// ── LOGIN ──
+async function fazerLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const senha = document.getElementById('loginSenha').value;
+  if (!email || !senha) { mostrarMsg('Preencha todos os campos.', 'erro'); return; }
+
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Entrando...';
+  limparMsg();
+
+  try {
+    const r = await fetch('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha }),
+    });
+    const d = await r.json();
+
+    if (!r.ok) {
+      if (d.nao_verificado) {
+        emailPendente = email;
+        document.getElementById('emailVerifDisplay').textContent = email;
+        trocarTela('verificacao');
+        mostrarMsg('Confirme seu e-mail antes de entrar.', 'erro');
+      } else {
+        mostrarMsg(d.erro || 'Erro ao entrar.', 'erro');
+      }
+      btn.disabled = false;
+      btn.innerHTML = 'Entrar <span style="font-size:18px">→</span>';
+      return;
+    }
+
+    mostrarMsg('Bem-vindo de volta!', 'ok');
+    setTimeout(() => { window.location.href = d.is_admin ? '/admin' : '/app'; }, 600);
+  } catch {
+    mostrarMsg('Erro de conexão. Tente novamente.', 'erro');
+    btn.disabled = false;
+    btn.innerHTML = 'Entrar <span style="font-size:18px">→</span>';
+  }
+}
+
+// ── CADASTRO ──
+async function fazerCadastro() {
+  const nome  = document.getElementById('cadNome').value.trim();
+  const email = document.getElementById('cadEmail').value.trim();
+  const senha = document.getElementById('cadSenha').value;
+
+  if (!nome || !email || !senha) { mostrarMsg('Preencha todos os campos.', 'erro'); return; }
+  if (senha.length < 6) { mostrarMsg('A senha deve ter pelo menos 6 caracteres.', 'erro'); return; }
+
+  const btn = document.getElementById('btnCadastro');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Criando conta...';
+  limparMsg();
+
+  try {
+    const r = await fetch('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, email, senha }),
+    });
+    const d = await r.json();
+
+    if (!r.ok) {
+      mostrarMsg(d.erro || 'Erro ao criar conta.', 'erro');
+      btn.disabled = false;
+      btn.innerHTML = 'Criar conta 🚀';
+      return;
+    }
+
+    emailPendente = email;
+    document.getElementById('emailVerifDisplay').textContent = email;
+    trocarTela('verificacao');
+    if (d.verificacao_enviada) {
+      mostrarMsg('E-mail de verificacao enviado!', 'ok');
+    } else {
+      mostrarMsg('Conta criada. Configure o SMTP para ativar o e-mail de verificacao.', 'ok');
+    }
+  } catch {
+    mostrarMsg('Erro de conexão. Tente novamente.', 'erro');
+    btn.disabled = false;
+    btn.innerHTML = 'Criar conta 🚀';
+  }
+}
+
+// ── REENVIAR VERIFICAÇÃO ──
+async function reenviarVerificacao() {
+  if (!emailPendente) return;
+  const btn = document.getElementById('btnReenviar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Enviando...';
+  try {
+    await fetch('/auth/reenviar-verificacao', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: emailPendente }),
+    });
+    mostrarMsg('E-mail reenviado!', 'ok');
+  } catch {
+    mostrarMsg('Erro ao reenviar.', 'erro');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Reenviar e-mail';
+  }
+}
+
+// ── ESQUECI SENHA ──
+async function fazerEsqueci() {
+  const email = document.getElementById('esqueciEmail').value.trim();
+  if (!email) { mostrarMsg('Informe seu e-mail.', 'erro'); return; }
+
+  const btn = document.getElementById('btnEsqueci');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Enviando...';
+  limparMsg();
+
+  try {
+    await fetch('/auth/esqueci-senha', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    mostrarMsg('Se este e-mail estiver cadastrado, voce recebera o link em instantes.', 'ok');
+  } catch {
+    mostrarMsg('Erro de conexão.', 'erro');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Enviar link de redefinicao';
+  }
+}
+
+// ── RESET SENHA ──
+async function fazerReset() {
+  const nova = document.getElementById('novaSenhaInput').value;
+  if (nova.length < 6) { mostrarMsg('Senha deve ter pelo menos 6 caracteres.', 'erro'); return; }
+
+  const btn = document.getElementById('btnReset');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Salvando...';
+  limparMsg();
+
+  try {
+    const r = await fetch('/auth/reset-senha', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: RESET_TOKEN, nova_senha: nova }),
+    });
+    const d = await r.json();
+    if (!r.ok) { mostrarMsg(d.erro || 'Erro.', 'erro'); btn.disabled = false; btn.innerHTML = 'Salvar nova senha'; return; }
+    mostrarMsg('Senha alterada! Faca o login.', 'ok');
+    setTimeout(() => trocarTela('login'), 1800);
+  } catch {
+    mostrarMsg('Erro de conexão.', 'erro');
+    btn.disabled = false;
+    btn.innerHTML = 'Salvar nova senha';
+  }
+}
+
+// ── FORÇA DA SENHA ──
+function avaliarSenha(v) {
+  const fill = document.getElementById('strengthFill');
+  let score = 0;
+  if (v.length >= 6) score++;
+  if (v.length >= 10) score++;
+  if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+  if (/\d/.test(v)) score++;
+  if (/[^A-Za-z0-9]/.test(v)) score++;
+  const pcts = [0, 20, 45, 65, 85, 100];
+  const colors = ['', '#f87171', '#fbbf24', '#fbbf24', '#34d399', '#34d399'];
+  fill.style.width = pcts[score] + '%';
+  fill.style.background = colors[score];
+}
+
+// ── TEMA ──
+function toggleTheme() {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+
+// ── ENTER KEY ──
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const tela = TELAS.find(id => document.getElementById(id).style.display !== 'none') || 'telaLogin'
+  if (tela === 'telaLogin') {
+    document.getElementById('formLogin').style.display !== 'none' ? fazerLogin() : fazerCadastro()
+  } else if (tela === 'telaEsqueci') {
+    fazerEsqueci()
+  } else if (tela === 'telaReset') {
+    fazerReset()
+  }
+});
+
+// ── INIT: mensagens do Flask e tela de reset ──
+window.addEventListener('DOMContentLoaded', () => {
+  {% if msg_erro %}
+    mostrarMsg('{{ msg_erro }}', 'erro')
+  {% endif %}
+  {% if msg_ok %}
+    mostrarMsg('{{ msg_ok }}', 'ok')
+  {% endif %}
+  {% if reset_token %}
+    trocarTela('reset')
+  {% endif %}
+});
+
+// ── BACKGROUND ──
+(function() {
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  for (let i = 0; i < 50; i++) {
+    particles.push({
+      x: Math.random(), y: Math.random(),
+      vx: (Math.random() - 0.5) * 0.0003,
+      vy: (Math.random() - 0.5) * 0.0003,
+      size: Math.random() * 1.5 + 0.5,
+      color: Math.random() > 0.5 ? '#38bdf8' : '#818cf8',
+      alpha: Math.random() * 0.3 + 0.1,
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = 1; if (p.x > 1) p.x = 0;
+      if (p.y < 0) p.y = 1; if (p.y > 1) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x * W, p.y * H, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + Math.floor(p.alpha * 255).toString(16).padStart(2, '0');
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  draw();
+})();
+</script>
+</body>
+</html>
