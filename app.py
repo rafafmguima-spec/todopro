@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from sqlalchemy.pool import NullPool
 import csv, io, os, requests, json, secrets
 
 load_dotenv()
@@ -20,13 +21,10 @@ if _db_url.startswith("postgres://"):
     _db_url = _db_url.replace("postgres://", "postgresql://", 1)
 app.config["SQLALCHEMY_DATABASE_URI"] = _db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_pre_ping": True,
-    "pool_size": 1,
-    "max_overflow": 0,
-    "pool_recycle": 300,
-    "connect_args": {"connect_timeout": 10},
-}
+_is_postgres = _db_url.startswith("postgresql")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = (
+    {"poolclass": NullPool} if _is_postgres else {}
+)
 db = SQLAlchemy(app)
 
 # ══════════════════════════════════════
