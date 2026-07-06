@@ -648,7 +648,7 @@ def _chat_fallback(msg, tarefas, hoje):
 @login_required
 def clear_done():
     uid = session["usuario_id"]
-    Tarefa.query.filter_by(usuario_id=uid, concluida=1).delete()
+    Tarefa.query.filter_by(usuario_id=uid, concluida=1).delete(synchronize_session=False)
     db.session.commit()
     return jsonify({"ok": True})
 
@@ -657,7 +657,7 @@ def clear_done():
 @login_required
 def clear_all():
     uid = session["usuario_id"]
-    Tarefa.query.filter_by(usuario_id=uid).delete()
+    Tarefa.query.filter_by(usuario_id=uid).delete(synchronize_session=False)
     db.session.commit()
     return jsonify({"ok": True})
 
