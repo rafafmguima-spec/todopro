@@ -1594,7 +1594,7 @@ async function toggleTask(id){
 
 async function deleteTask(id){
   try {
-    await api(`/delete/${id}`)
+    await api(`/delete/${id}`, {})
     tasks = tasks.filter(t=>t.id!==id)
     alertados.delete(id)
     render()
