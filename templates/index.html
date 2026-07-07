@@ -490,8 +490,6 @@ li.atrasada {
 /* ── FALA BUBBLE ── */
 #fala {
   position: fixed;
-  bottom: 140px;
-  right: 20px;
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
@@ -501,7 +499,7 @@ li.atrasada {
   max-width: 200px;
   opacity: 0;
   transform: translateY(8px);
-  transition: all 0.3s;
+  transition: opacity 0.3s, transform 0.3s;
   z-index: 99;
   pointer-events: none;
   box-shadow: 0 4px 16px var(--shadow);
@@ -1002,6 +1000,7 @@ function toggleMudo(){
   if(tarefasMudo){
     speechSynthesis.cancel()
     falaEl.textContent = "Modo silencioso ativado."
+    posicionarFala()
     falaEl.classList.add("show")
     setTimeout(()=>falaEl.classList.remove("show"), 2000)
   } else {
@@ -1180,9 +1179,23 @@ document.addEventListener("change", e => {
   }
 })
 
+function posicionarFala(){
+  const rect = mascoteWrapper.getBoundingClientRect()
+  const fw = 220
+  let left = rect.left + rect.width/2 - fw/2
+  let top  = rect.top - 10
+  left = Math.max(8, Math.min(window.innerWidth - fw - 8, left))
+  top  = top < 60 ? rect.bottom + 10 : top - 60
+  falaEl.style.left  = left + "px"
+  falaEl.style.top   = top  + "px"
+  falaEl.style.right = "auto"
+  falaEl.style.bottom = "auto"
+}
+
 let _ttsAudio = null
 async function falar(msg){
   falaEl.textContent = msg
+  posicionarFala()
   falaEl.classList.add("show")
   clearTimeout(mascoteTimer)
   mascoteTimer = setTimeout(() => falaEl.classList.remove("show"), 3500)
