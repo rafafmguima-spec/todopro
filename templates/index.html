@@ -1179,20 +1179,34 @@ document.addEventListener("change", e => {
   }
 })
 
-function falar(msg){
+let _ttsAudio = null
+async function falar(msg){
   falaEl.textContent = msg
   falaEl.classList.add("show")
   clearTimeout(mascoteTimer)
   mascoteTimer = setTimeout(() => falaEl.classList.remove("show"), 3500)
-  if('speechSynthesis' in window && !tarefasMudo){
-    speechSynthesis.cancel()
-    const u = new SpeechSynthesisUtterance(msg)
-    if(voiceSelecionada) u.voice = voiceSelecionada
-    u.lang = voiceSelecionada?.lang || "pt-BR"
-    u.rate  = voiceRate  + (Math.random() - 0.5) * 0.06
-    u.pitch = voicePitch + (Math.random() - 0.5) * 0.08
-    u.volume = 0.95
-    speechSynthesis.speak(u)
+  if(tarefasMudo) return
+  try {
+    if(_ttsAudio){ _ttsAudio.pause(); _ttsAudio = null }
+    const r = await fetch('/tts', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({text: msg})
+    })
+    if(!r.ok) throw new Error()
+    const blob = await r.blob()
+    const url = URL.createObjectURL(blob)
+    _ttsAudio = new Audio(url)
+    _ttsAudio.play()
+    _ttsAudio.onended = () => URL.revokeObjectURL(url)
+  } catch {
+    if('speechSynthesis' in window){
+      speechSynthesis.cancel()
+      const u = new SpeechSynthesisUtterance(msg)
+      if(voiceSelecionada) u.voice = voiceSelecionada
+      u.lang = 'pt-BR'
+      speechSynthesis.speak(u)
+    }
   }
 }
 

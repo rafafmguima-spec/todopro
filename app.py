@@ -559,6 +559,29 @@ def stats():
     })
 
 
+@app.route("/tts", methods=["POST"])
+@login_required
+def tts():
+    data = request.get_json()
+    text = (data.get("text") or "").strip()[:300]
+    if not text:
+        return jsonify({"erro": "Texto vazio"}), 400
+    api_key = os.environ.get("ELEVENLABS_API_KEY", "")
+    if not api_key:
+        return jsonify({"erro": "TTS não configurado"}), 503
+    voice_id = os.environ.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
+    r = requests.post(
+        f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+        headers={"xi-api-key": api_key, "Content-Type": "application/json"},
+        json={"text": text, "model_id": "eleven_multilingual_v2",
+              "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}},
+        timeout=10
+    )
+    if r.status_code != 200:
+        return jsonify({"erro": "Erro ElevenLabs"}), 502
+    return Response(r.content, mimetype="audio/mpeg")
+
+
 @app.route("/export/csv")
 @login_required
 def export_csv():
