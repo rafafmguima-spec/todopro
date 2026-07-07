@@ -844,6 +844,21 @@ li.atrasada {
       </div>
     </div>
 
+      <!-- Tamanho do robô -->
+      <div style="margin-top:10px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:10px 14px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <div>
+            <div style="font-size:13px; font-weight:600;">Tamanho do robô</div>
+            <div style="font-size:11px; color:var(--text2);">Arraste para ajustar</div>
+          </div>
+          <div style="font-size:11px; color:var(--accent); font-weight:700;" id="mascote-size-display">90px</div>
+        </div>
+        <input type="range" id="mascote-size" min="50" max="160" step="5" value="90"
+          oninput="atualizarTamanhoMascote(this.value)"
+          style="width:100%; accent-color:var(--accent); cursor:pointer;">
+      </div>
+    </div>
+
     <!-- Seção: Voz -->
     <div>
       <div style="font-size:10px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">🎙️ Voz do Robô</div>
@@ -1327,6 +1342,19 @@ function atualizarToggleRastro(){
 
 let voiceRate  = parseFloat(localStorage.getItem("todopro_rate")  || "0.9")
 let voicePitch = parseFloat(localStorage.getItem("todopro_pitch") || "1.05")
+
+let mascoteSize = parseInt(localStorage.getItem("todopro_mascote_size") || "90")
+function atualizarTamanhoMascote(val, save=true){
+  mascoteSize = parseInt(val)
+  mascoteWrapper.style.width  = mascoteSize + "px"
+  mascoteWrapper.style.height = mascoteSize + "px"
+  const disp = document.getElementById("mascote-size-display")
+  if(disp) disp.textContent = mascoteSize + "px"
+  const slider = document.getElementById("mascote-size")
+  if(slider) slider.value = mascoteSize
+  if(save) localStorage.setItem("todopro_mascote_size", mascoteSize)
+}
+atualizarTamanhoMascote(mascoteSize, false)
 
 function abrirSettings(){
   document.getElementById("settings-overlay").style.display = "flex"
