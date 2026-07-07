@@ -22,9 +22,12 @@ if _db_url.startswith("postgres://"):
 app.config["SQLALCHEMY_DATABASE_URI"] = _db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 _is_postgres = _db_url.startswith("postgresql")
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = (
-    {"poolclass": NullPool} if _is_postgres else {}
-)
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True,
+    "pool_size": 1,
+    "max_overflow": 0,
+    "pool_recycle": 60,
+} if _is_postgres else {}
 db = SQLAlchemy(app)
 
 # ══════════════════════════════════════
